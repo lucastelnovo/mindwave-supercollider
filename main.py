@@ -28,9 +28,6 @@ RAW_VAL_WIN_SIZE = 512
 EYEBLINK_WIN_SIZE = 128
 NO_OF_POINTS = 100
 
-
-
-
 class MyMainWindow(Ui_MainWindow):
     def __init__(self, MainWindow):
         """
@@ -47,6 +44,9 @@ class MyMainWindow(Ui_MainWindow):
         self.startButton.clicked.connect(self.monitor)
         self.MainWindow.update_ui_signal.connect(self.update_ui)
         self.MainWindow.update_statusbar_signal.connect(self.update_statusbar)
+
+        self.checkBoxEnable1.stateChanged.connect(self.c1clicked)
+        self.checkBoxEnable2.stateChanged.connect(self.c2clicked)
 
         # provide storage to remember the last 512 raw eeg data points
         self.last_512_raw_waves = deque([0] * RAW_VAL_WIN_SIZE, RAW_VAL_WIN_SIZE)
@@ -65,18 +65,11 @@ class MyMainWindow(Ui_MainWindow):
         # make sure the menu entries do something
         self.actionQuit.triggered.connect(QtGui.qApp.quit)
 
-        port = 57120
-        self.sc = OSC.OSCClient()
-        try:
-            self.sc.connect(('localhost', port)) #send locally to laptop
-        except Exception as e:
-            print ("Error connecting to supercollider: {0}".format(e))
-
     def monitor(self):
         """
         start/stop button pressed
         """
-        print("monitor")
+        #print("monitor")
         if self.running:
             self.connected = "Not connected"
             self.signal_quality = "unknown signal quality"
@@ -98,6 +91,32 @@ class MyMainWindow(Ui_MainWindow):
                                               'Headset not found. Did you pair and connect to serial device {0}?'.format(
                                                   device), QtGui.QMessageBox.Ok)
 
+            port1 = int(self.Port1.text())
+            destIP1 = self.destIP1.text()
+            if self.checkBoxEnable1.checkState() != QtCore.Qt.Unchecked:
+                self.sc1 = OSC.OSCClient()
+                try:
+                    self.sc1.connect((destIP1, port1))  # send locally to laptop
+                except Exception as e:
+                    print ("Error connecting to {0}:{1} ({2})".format(destIP1, port1, e))
+            else:
+                self.sc1 = None
+                print ("No connection attempted to {0}:{1}. To use it, click STOP button, then enable checkbox, "
+                       "then START button again".format(destIP1, port1))
+
+            port2 = int(self.Port2.text())
+            destIP2 = self.destIP2.text()
+            if self.checkBoxEnable2.checkState() != QtCore.Qt.Unchecked:
+                self.sc2 = OSC.OSCClient()
+                try:
+                    self.sc2.connect((destIP2, port2))
+                except Exception as e:
+                    print ("Error connecting to {0}:{1} ({2})".format(destIP2, port2, e))
+            else:
+                self.sc2 = None
+                print ("No connection attempted to {0}:{1}. To use it, click STOP button, then enable checkbox, "
+                       "then START button again".format(destIP2, port2))
+
             if self.h:
                 self.h.raw_wave_handlers.append(self.raw_wave_handler)
                 self.h.meditation_handlers.append(self.handle_meditation_event)
@@ -110,16 +129,43 @@ class MyMainWindow(Ui_MainWindow):
 
         self.update_statusbar()
 
-    def sendOscMsg(self, name="/signalquality", value=None):
-        msg = OSC.OSCMessage()
-        msg.setAddress(name)
-        if value:
-            msg.append(value)
-        try:
-            self.sc.send(msg)
-        except Exception, e:
-            print ("Error while sending msg {0} to supercollider: {1}".format(msg, e))
-        print "Sent OSC Msg: ", msg
+    def c1clicked(self, newstate):
+        if newstate == QtCore.Qt.Unchecked:
+            self.labelDestIP1.setEnabled(False)
+            self.destIP1.setEnabled(False)
+            self.labelPort1.setEnabled(False)
+            self.Port1.setEnabled(False)
+        else:
+            self.labelDestIP1.setEnabled(True)
+            self.destIP1.setEnabled(True)
+            self.labelPort1.setEnabled(True)
+            self.Port1.setEnabled(True)
+
+    def c2clicked(self, newstate):
+        if newstate == QtCore.Qt.Unchecked:
+            self.labelDestIP2.setEnabled(False)
+            self.destIP2.setEnabled(False)
+            self.labelPort2.setEnabled(False)
+            self.Port2.setEnabled(False)
+        else:
+            self.labelDestIP2.setEnabled(True)
+            self.destIP2.setEnabled(True)
+            self.labelPort2.setEnabled(True)
+            self.Port2.setEnabled(True)
+
+    def sendOscMsg(self, name, value=None):
+        for s,e in ((self.sc1, self.checkBoxEnable1),
+                    (self.sc2,self.checkBoxEnable2)):
+            if s: # and e.checkState != QtCore.Qt.Unchecked:
+                msg = OSC.OSCMessage()
+                msg.setAddress("/mindwave"+name)
+                if value:
+                    msg.append(value)
+                try:
+                    s.send(msg)
+                except Exception, e:
+                    print ("Error while sending msg {0} to supercollider: {1}".format(msg, e))
+                print "Sent OSC Msg: ", msg
 
     def handle_poor_signal(self, headset, value):
         """

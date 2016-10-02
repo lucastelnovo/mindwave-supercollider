@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>859</width>
-    <height>140</height>
+    <height>201</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -110,6 +110,9 @@
         <property name="text">
          <string>Eye blink sensitivity</string>
         </property>
+        <property name="buddy">
+         <cstring>eyeBlinkSensitivity</cstring>
+        </property>
        </widget>
       </item>
       <item>
@@ -123,6 +126,9 @@
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>Lower Eye blink frequency  (Hz)</string>
+        </property>
+        <property name="buddy">
+         <cstring>lowerEyeBlinkFrequency</cstring>
         </property>
        </widget>
       </item>
@@ -138,12 +144,132 @@
         <property name="text">
          <string>Higher Eye blink frequency (Hz)</string>
         </property>
+        <property name="buddy">
+         <cstring>higherEyeBlinkFrequency</cstring>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="higherEyeBlinkFrequency">
         <property name="text">
          <string>20.0</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QCheckBox" name="checkBoxEnable1">
+        <property name="text">
+         <string>Enable</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelDestIP1">
+        <property name="text">
+         <string>Destination IP address 1</string>
+        </property>
+        <property name="buddy">
+         <cstring>destIP1</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="destIP1">
+        <property name="text">
+         <string>localhost</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelPort1">
+        <property name="text">
+         <string>Port</string>
+        </property>
+        <property name="buddy">
+         <cstring>Port1</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="Port1">
+        <property name="text">
+         <string>57120</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QCheckBox" name="checkBoxEnable2">
+        <property name="text">
+         <string>Enable</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelDestIP2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Destination IP address 2</string>
+        </property>
+        <property name="buddy">
+         <cstring>destIP2</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="destIP2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>localhost</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelPort2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Port</string>
+        </property>
+        <property name="buddy">
+         <cstring>Port2</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="Port2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>7777</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -157,7 +283,7 @@
       <property name="sizeHint" stdset="0">
        <size>
         <width>20</width>
-        <height>84</height>
+        <height>40</height>
        </size>
       </property>
      </spacer>
@@ -199,11 +325,17 @@
   </action>
  </widget>
  <tabstops>
+  <tabstop>startButton</tabstop>
   <tabstop>deviceComboBox</tabstop>
   <tabstop>eyeBlinkSensitivity</tabstop>
   <tabstop>lowerEyeBlinkFrequency</tabstop>
   <tabstop>higherEyeBlinkFrequency</tabstop>
-  <tabstop>startButton</tabstop>
+  <tabstop>checkBoxEnable1</tabstop>
+  <tabstop>destIP1</tabstop>
+  <tabstop>Port1</tabstop>
+  <tabstop>checkBoxEnable2</tabstop>
+  <tabstop>destIP2</tabstop>
+  <tabstop>Port2</tabstop>
  </tabstops>
  <resources/>
  <connections/>
