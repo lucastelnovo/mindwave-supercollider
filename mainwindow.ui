@@ -266,7 +266,7 @@
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>7777</string>
+         <string>3333</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

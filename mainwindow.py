@@ -197,7 +197,7 @@ class Ui_MainWindow(object):
         self.labelDestIP2.setText(_translate("MainWindow", "Destination IP address 2", None))
         self.destIP2.setText(_translate("MainWindow", "localhost", None))
         self.labelPort2.setText(_translate("MainWindow", "Port", None))
-        self.Port2.setText(_translate("MainWindow", "7777", None))
+        self.Port2.setText(_translate("MainWindow", "3333", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.actionQuit.setText(_translate("MainWindow", "Quit", None))
         self.actionSave_state.setText(_translate("MainWindow", "Save state", None))
