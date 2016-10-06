@@ -48,6 +48,8 @@ class MyMainWindow(Ui_MainWindow):
         self.checkBoxEnable1.stateChanged.connect(self.c1clicked)
         self.checkBoxEnable2.stateChanged.connect(self.c2clicked)
 
+        self.testButton.clicked.connect(self.testEnabled)
+
         # provide storage to remember the last 512 raw eeg data points
         self.last_512_raw_waves = deque([0] * RAW_VAL_WIN_SIZE, RAW_VAL_WIN_SIZE)
         self.counter = 0
@@ -65,6 +67,26 @@ class MyMainWindow(Ui_MainWindow):
         # make sure the menu entries do something
         self.actionQuit.triggered.connect(QtGui.qApp.quit)
 
+        self.sc1 = None
+        port1 = int(self.Port1.text())
+        destIP1 = self.destIP1.text()
+        if self.checkBoxEnable1.checkState() != QtCore.Qt.Unchecked:
+            self.sc1 = OSC.OSCClient()
+            try:
+                self.sc1.connect((destIP1, port1))
+            except Exception as e:
+                print ("Could not yet connect to {0}:{1} ({2})".format(destIP1, port1, e))
+                
+        self.sc2 = None
+        port2 = int(self.Port2.text())
+        destIP2 = self.destIP2.text()
+        if self.checkBoxEnable2.checkState() != QtCore.Qt.Unchecked:
+            self.sc2 = OSC.OSCClient()
+            try:
+                self.sc2.connect((destIP2, port2))
+            except Exception as e:
+                print ("Could not yet connect to {0}:{1} ({2})".format(destIP2, port2, e))
+ 
     def monitor(self):
         """
         start/stop button pressed
@@ -153,19 +175,21 @@ class MyMainWindow(Ui_MainWindow):
             self.labelPort2.setEnabled(True)
             self.Port2.setEnabled(True)
 
-    def sendOscMsg(self, name, value=None):
-        for s,e in ((self.sc1, self.checkBoxEnable1),
-                    (self.sc2,self.checkBoxEnable2)):
-            if s: # and e.checkState != QtCore.Qt.Unchecked:
+    def sendOscMsg(self, name, force=False, value=None):
+        for s,ip,port,e in ((self.sc1, self.destIP1.text(), self.Port1.text(), self.checkBoxEnable1),
+                            (self.sc2, self.destIP2.text(), self.Port2.text(), self.checkBoxEnable2)):
+            if s and e.checkState != QtCore.Qt.Unchecked:
                 msg = OSC.OSCMessage()
                 msg.setAddress("/mindwave"+name)
+                #print ("Name = ",name)
+                #print ("value = ", value)
                 if value:
                     msg.append(value)
                 try:
                     s.send(msg)
                 except Exception, e:
-                    print ("Error while sending msg {0} to supercollider: {1}".format(msg, e))
-                print "Sent OSC Msg: ", msg
+                    print ("Error while sending msg {0} to {1}:{2} ({3})".format(msg, ip, port, e))
+                #print "Sent OSC Msg: ", msg
 
     def handle_poor_signal(self, headset, value):
         """
@@ -174,7 +198,7 @@ class MyMainWindow(Ui_MainWindow):
         self.signal_quality = "poor signal quality {0}%".format(value)
         self.MainWindow.update_statusbar_signal.emit()
         self.sendOscMsg("/poorsignal")
-        self.sendOscMsg("/signalquality", value)
+        self.sendOscMsg("/signalquality", False, value)
 
     def handle_good_signal(self, headset, value):
         """
@@ -183,7 +207,7 @@ class MyMainWindow(Ui_MainWindow):
         self.signal_quality = "good signal quality"
         self.MainWindow.update_statusbar_signal.emit()
         self.sendOscMsg("/goodsignal")
-        self.sendOscMsg("/signalquality", value)
+        self.sendOscMsg("/signalquality", False, value)
 
     def raw_wave_handler(self, headset, value):
         """
@@ -193,7 +217,7 @@ class MyMainWindow(Ui_MainWindow):
         self.last_512_raw_waves.pop()
         self.last_512_raw_waves.appendleft(value)
         self.MainWindow.update_ui_signal.emit()
-        self.sendOscMsg("/raw", value)
+        self.sendOscMsg("/raw", False, value)
 
     def check_eyeblink(self, sensitivity, lowfreq, highfreq):
         """
@@ -218,19 +242,19 @@ class MyMainWindow(Ui_MainWindow):
         """
         function to do something when a meditation event is detected
         """
-        self.sendOscMsg("/meditation", value)
+        self.sendOscMsg("/meditation", False, value)
 
     def handle_attention_event(self, headset, value):
         """
         function to do something when an attention event is detected
         """
-        self.sendOscMsg("/attention", value)
+        self.sendOscMsg("/attention", False,value)
 
     def handle_eeg_power(self, headset, delta, theta, lowalpha, highalpha, lowbeta, highbeta, lowgamma, midgamma):
         """
         function to do something when an eeg power event is detected
         """
-        self.sendOscMsg("/eeg", [delta, theta, lowalpha, highalpha, lowbeta, highbeta, lowgamma, midgamma])
+        self.sendOscMsg("/eeg", False, [delta, theta, lowalpha, highalpha, lowbeta, highbeta, lowgamma, midgamma])
 
     def update_ui(self):
         """
@@ -247,6 +271,17 @@ class MyMainWindow(Ui_MainWindow):
 
     def update_statusbar(self):
         self.statusbar.showMessage("{0} - {1}".format(self.connected, self.signal_quality))
+
+
+    def testEnabled(self):
+        strng = self.testMsgFormat.text()
+        print "strng: " , strng
+        import random
+        if "$" in strng:
+            number = random.randint(self.minRange.value(), self.maxRange.value())
+            strng.replace(QtCore.QChar("$"), QtCore.QString("{0}".format(number)))
+        splittedstrng = strng.split(QtCore.QRegExp("\s"))
+        self.sendOscMsg(splittedstrng[0], False, splittedstrng[1].toInt()[0])
 
 
 class MainWindowWithCustomSignal(QtGui.QMainWindow):
