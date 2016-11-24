@@ -281,7 +281,10 @@ class MyMainWindow(Ui_MainWindow):
             number = random.randint(self.minRange.value(), self.maxRange.value())
             strng.replace(QtCore.QChar("$"), QtCore.QString("{0}".format(number)))
         splittedstrng = strng.split(QtCore.QRegExp("\s"))
-        self.sendOscMsg(splittedstrng[0], False, splittedstrng[1].toInt()[0])
+        if "$" in strng:
+            self.sendOscMsg(splittedstrng[0], False, splittedstrng[1].toInt()[0])
+        else:
+            self.sendOscMsg(splittedstrng[0], False)
 
 
 class MainWindowWithCustomSignal(QtGui.QMainWindow):
